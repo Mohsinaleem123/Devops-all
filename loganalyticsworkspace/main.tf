@@ -1,0 +1,24 @@
+ terraform {
+  required_providers {
+    azurerm = {
+      source = "hashicorp/azurerm"
+      version = ">= 3.10.0"
+    }
+  }
+}
+provider "azurerm" {
+  features {}
+}
+
+resource "azurerm_log_analytics_workspace" "example" {
+  name                = var.workspace_name
+  location            = var.location
+  resource_group_name = var.resource_group_name
+
+  sku  = "PerGB2018"
+  
+
+  retention_in_days = var.retention_in_days
+}
+
+# Optionally, you can configure access control here
