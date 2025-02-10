@@ -1,0 +1,47 @@
+trigger: none
+
+pool:
+  name: 'UK' 
+
+variables:
+- template: variables/terraform.yml
+
+resources:
+  pipelines:
+  - pipeline: infra 
+    source: drop-infra-build
+    trigger:
+      branches:
+      - feature/v2-test-environment
+
+  - pipeline: api
+    source: drop-api-build-test
+    trigger:
+      branches:
+      - feature/v2-test-environment
+
+stages:
+
+# - template: templates/release-terraform.yml
+#   parameters:
+#     environment: dev 
+#     variablesTemplates: /azure-pipelines/variables/dev.yml
+#     dependsOn:
+
+- template: templates/release-terraform.yml
+  parameters:
+    environment: test
+    variablesTemplates: /azure-pipelines/variables/test.yml
+    dependsOn: 
+
+# - template: templates/release-terraform.yml
+#   parameters:
+#     environment: pre-prod 
+#     variablesTemplates: /azure-pipelines/variables/preprod.yml 
+#     dependsOn: test
+    
+# - template: templates/release-terraform.yml
+#   parameters:
+#     environment: prod 
+#     variablesTemplates: /azure-pipelines/variables/prod.yml 
+#     dependsOn: pre-prod

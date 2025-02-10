@@ -1,0 +1,65 @@
+trigger:
+- none
+
+pr: none
+
+parameters:
+  - name: listbackups
+    displayName: "List Backup dates"
+    default: true
+    type: boolean
+  - name: backupdatabase
+    displayName: "Backup Database"
+    default: false
+    type: boolean
+  - name: restoredatabase
+    displayName: "Restore Database to date (format: yyyy-dd-M--HH-mm-ss)"
+    type: string
+    default: " "
+
+name: ${{ parameters.PkgID }}_v${{ parameters.PkgVersion }}_$(Date:yyyyMMdd)$(Rev:.r)
+
+jobs:
+- job: 
+  pool:
+    name: UK
+  steps:
+
+  - task: AzureKeyVault@2
+    inputs:
+      azureSubscription: ${{ parameters.AzureSubscription }}
+      KeyVaultName: ${{ parameters.KeyVaultName }}
+      SecretsFilter: '*'
+      RunAsPreJob: false
+
+  - task: AzureCLI@2
+    enabled: ${{ parameters.listbackups }}
+    displayName: "List Backups in Blob Storage"
+    name: ListBackups
+    inputs:
+      targetType: 'inline'
+      script: |
+        $response = Invoke-WebRequest -Method 'GET' -Headers @{authorization = $tokenauth} -Uri "$backupUrl"
+        $responseContent = $response.Content | ConvertFrom-Json
+        Write-Host "Backups available:"
+        Write-Host $responseContent
+
+  - task: PowerShell@2
+    enabled: ${{ parameters.backupdatabase }}
+    displayName: 'Backup Database to Blob Storage'
+    inputs:
+      targetType: 'inline'
+      script: |
+        $response = Invoke-WebRequest -Method 'POST' -SkipHeaderValidation -Headers @{authorization = $tokenauth} -Uri "$backupUrl"
+        $responseContent = $response.Content | ConvertFrom-Json
+        Write-Host $responseContent
+
+  - task: PowerShell@2
+    enabled: ${{ ne(parameters.restoredatabase, ' ') }} 
+    displayName: 'Restore Database from Blob Storage'
+    inputs:
+      targetType: 'inline'
+      script: |
+        $response = Invoke-WebRequest -Method 'POST' -SkipHeaderValidation -Headers @{authorization = $tokenauth} -Uri "$backupUrl/${{parameters.restoredatabase}}/restore"
+        $responseContent = $response.Content | ConvertFrom-Json
+        Write-Host $responseContent

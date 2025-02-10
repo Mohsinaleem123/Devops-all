@@ -1,0 +1,6 @@
+trigger: none
+
+pool:
+  name: 'UK' 
+
+template: templates/release-terraform.yml   

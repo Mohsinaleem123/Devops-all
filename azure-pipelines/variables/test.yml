@@ -1,0 +1,54 @@
+variables:
+  Environment: 'test'
+  AgentPool: 'UK'
+
+  ArtifactUrl: ''
+  ArtifactFeedID: '7bb353af-23c1-4d2b-b479-c56f64aa482b/a626ff71-efbf-4c7e-a254-7c3e8835790f'
+  stagetriggerurl: 'https://dev.azure.com/RRALM/Group-IT-Infrastructure-and-Operations/_apis/pipelines/1836/runs?api-version=6.1-preview.1'
+  releasetriggerurl: 'https://dev.azure.com/RRALM/Group-IT-Infrastructure-and-Operations/_apis/pipelines/1837/runs?api-version=6.1-preview.1'
+  BeUrl: 'https://alm.rolls-royce-dev.com/test'
+  BeUrl-webapp: '' # not sure this is used anywhere?
+  gateway: 'eng.rolls-royce-dev.com' # where is this used? can we merge with the beurl variable?
+  status: '/deploy/api/packages/'
+
+  dbrepo: ''
+
+  Service_Connection: 'rr-deployment-dxc-iac-dev'
+
+  Resource_Group_Name: 'itss-uks-dz01-rrdeploy-rg'
+  Resource_Group_Tags_Release: 'pipelines-dev-release'
+  Resource_Group_Tags_Staging: 'pipelines-dev-staging'
+  Resource_Region: 'southuk'
+  Resource_Region_Failover_Location: 'westuk'
+
+
+  Vnet_Name: 'itss-uks-dz01-vnet'
+  Vnet_Resoure_Group_Name: 'itss-uks-dz01-net-rg'
+
+  integration_Subnet_Name: 'drop-test-integration'
+
+  vm_Resource_Group_Name: 'itss-uks-dz01-net-rg'
+  vm_vnet_Name: 'itss-uks-dz01-vnet'
+  vm_Subnet_Name: 'itss-uks-dz01-devvms-sn'
+
+  Web_Backend_Subnet_Name: 'drop-test-be'
+  Web_Frontend_Subnet_Name: 'drop-test-fe'
+
+  Application_Config_Name: 'drop-test-ac'
+
+  service_plan_name: 'drop-test-asp'
+  Web_Frontend_Name: 'drop-test-as-fe'
+  Web_Backend_Name: 'drop-test-as-be'
+  
+  Key_Vault_Name: 'drop-test-kv-fe'
+
+
+  Terraform_State_Storage_Account_Name: 'droptestsatfstate01'
+  Staging_Storage_ContainerName: 'staging-temp'
+  Staging_Storage_Account_Name: 'droptestsa01'
+  CosmosDB_Account_Name: 'drop-test-cdb'
+  CosmosDB_Database_Name: 'RRDeployFE'
+  CosmosDB_Collection_MasterPackages_Name: 'MasterPackage'
+  CosmosDB_Collection_MasterPipelines_Name: 'MasterPipelines'
+  CosmosDB_Collection_ReporterPackages_Name: 'Report'
+  CosmosDB_Collection_Errorcodes_Name: 'Errorcodes'

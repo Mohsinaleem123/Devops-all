@@ -1,0 +1,59 @@
+parameters:
+- name: environment
+  type: string
+- name: variablesTemplates
+  type: string
+- name: dependsOn
+  type: string
+
+steps:
+- download: infra
+- task: AzureCLI@2
+  displayName: "Creating Terraform State Storage Account"
+  inputs:
+    azureSubscription: ${{ variables.Service_Connection }}
+    scriptType: 'ps'
+    scriptLocation: 'scriptPath'
+    scriptPath: '$(Pipeline.Workspace)\infra\infra\powershell\Create-TerraformStateStorageAccount.ps1'
+    arguments: "-ResourceGroupTags '' -ResourceGroupName '${{ variables.Resource_Group_Name}}' -StorageAccountName '${{ variables.Terraform_State_Storage_Account_Name}}' -ContainerName 'tfstate'"
+    failOnStandardError: true
+- task: TerraformInstaller@1
+  displayName: "Install Terraform"
+  inputs:
+    terraformVersion: 'latest'
+- task: TerraformTaskV4@4
+  displayName: "Initialize Terraform"
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    backendServiceArm: ${{ variables.Service_Connection }}
+    backendAzureRmResourceGroupName: ${{ variables.Resource_Group_Name }}
+    backendAzureRmStorageAccountName: ${{ variables.Terraform_State_Storage_Account_Name }}
+    backendAzureRmContainerName: 'tfstate'
+    backendAzureRmKey: 'terraform.tfstate'
+    workingDirectory: '$(Pipeline.Workspace)/infra/infra/terraform'
+- task: TerraformTaskV4@4
+  displayName: "Validate Terraform"
+  inputs:
+    provider: 'azurerm'
+    command: 'validate'
+    workingDirectory: '$(Pipeline.Workspace)/infra/infra/terraform'
+- task: TerraformTaskV4@4
+  displayName: "Create tfplan file"
+  name: terraformPlan
+  inputs:
+    provider: 'azurerm'
+    command: 'plan'
+    commandLineArguments: '-input=false -out=tfplan'
+    environmentServiceNameAzureRM: ${{ variables.Service_Connection}}
+    workingDirectory: '$(Pipeline.Workspace)/infra/infra/terraform'
+- task: TerraformTaskV4@4
+  displayName: "Show Terraform Plan"
+  inputs:
+    provider: 'azurerm'
+    command: 'show'
+    outputTo: 'console'
+    outputFormat: 'default'
+    commandLineArguments: 'tfplan'
+    workingDirectory: '$(Pipeline.Workspace)/infra/infra/terraform'
+    environmentServiceNameAzureRM: ${{ variables.Service_Connection}}

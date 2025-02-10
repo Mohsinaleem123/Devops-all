@@ -1,0 +1,191 @@
+parameters:
+- name: environment
+  type: string
+- name: variablesTemplates
+  type: string
+- name: dependsOn
+  type: string
+
+stages:
+  
+- stage: ${{ replace(parameters.environment, '-', '_') }}
+  ${{ if parameters.dependsOn }}:
+    dependsOn:
+      - ${{ replace(parameters.dependsOn, '-', '_') }}
+  displayName: ${{ parameters.environment }}
+  variables:
+  - template: ${{ parameters.variablesTemplates }}
+  - name: environmentFriendlyString
+    value: ${{ replace(parameters.environment, '-', '_') }}
+
+  pool:
+    name: ${{ variables.AgentPool }}
+
+  jobs:
+  - deployment: ${{ variables.environmentFriendlyString }}_BackupDatabase
+    displayName: "Backing up database to blob storage"
+    continueOnError: false
+    environment: drop-${{ parameters.environment }}
+    strategy:
+      runOnce:
+          deploy:
+            steps:
+            - download: infra 
+            - task: AzureKeyVault@2
+              inputs:
+                azureSubscription: ${{ variables.Service_Connection }}
+                KeyVaultName: ${{ variables.Key_Vault_Name}}
+                SecretsFilter: '*'
+                RunAsPreJob: false
+            - task: PowerShell@2
+              displayName: 'Backing up cosmosdb'
+              inputs:
+                pwsh: true
+                targetType: filePath
+                failOnStderr: false
+                filePath: '$(Pipeline.Workspace)/infra/infra/powershell/Backup-CosmosDB.ps1'
+                arguments: '-BackEndApi "${{ variables.BeUrl }}" -tokenauth "$(tokenauth)"'
+
+  - deployment: ${{ variables.environmentFriendlyString }}_Infra
+    displayName: "Deploying Azure Infrastructure"
+    workspace:
+      clean: all
+    continueOnError: false
+    environment: drop-${{ parameters.environment }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: infra
+          - task: AzureCLI@2
+            displayName: "Creating Terraform State Storage Account"
+            inputs:
+              azureSubscription: ${{ variables.Service_Connection }}
+              scriptType: 'ps'
+              scriptLocation: 'scriptPath'
+              scriptPath: '$(Pipeline.Workspace)\infra\infra\powershell\Create-TerraformStateStorageAccount.ps1'
+              arguments: "-ResourceGroupTags '' -ResourceGroupName '${{ variables.Resource_Group_Name}}' -StorageAccountName '${{ variables.Terraform_State_Storage_Account_Name}}' -ContainerName 'tfstate'"
+              failOnStandardError: true
+          - task: TerraformInstaller@1
+            displayName: "Install Terraform"
+            inputs:
+              terraformVersion: 'latest'
+          - task: TerraformTaskV4@4
+            displayName: "Initialize Terraform"
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              backendServiceArm: ${{ variables.Service_Connection }}
+              backendAzureRmResourceGroupName: ${{ variables.Resource_Group_Name }}
+              backendAzureRmStorageAccountName: ${{ variables.Terraform_State_Storage_Account_Name }}
+              backendAzureRmContainerName: 'tfstate'
+              backendAzureRmKey: 'terraform.tfstate'
+              workingDirectory: '$(Pipeline.Workspace)/infra/infra/terraform'
+          - task: TerraformTaskV4@4
+            displayName: "Validate Terraform"
+            inputs:
+              provider: 'azurerm'
+              command: 'validate'
+              workingDirectory: '$(Pipeline.Workspace)/infra/infra/terraform'
+          - task: TerraformTaskV4@4
+            displayName: "Create tfplan file"
+            name: terraformPlan
+            inputs:
+              provider: 'azurerm'
+              command: 'plan'
+              commandLineArguments: '-input=false -out=tfplan'
+              environmentServiceNameAzureRM: ${{ variables.Service_Connection}}
+              workingDirectory: '$(Pipeline.Workspace)/infra/infra/terraform'
+          - task: TerraformTaskV4@4
+            displayName: "Show Terraform Plan"
+            inputs:
+              provider: 'azurerm'
+              command: 'show'
+              outputTo: 'console'
+              outputFormat: 'default'
+              commandLineArguments: 'tfplan'
+              workingDirectory: '$(Pipeline.Workspace)/infra/infra/terraform'
+              environmentServiceNameAzureRM: ${{ variables.Service_Connection}}
+          - task: TerraformTaskV4@4
+            displayName: "Apply Terraform"
+            condition: eq(variables['terraformPlan.changesPresent'], 'true')
+            inputs:
+              provider: 'azurerm'
+              command: 'apply'
+              commandLineArguments: '-auto-approve -input=false tfplan'
+              environmentServiceNameAzureRM: ${{ variables.Service_Connection }}
+              workingDirectory: '$(Pipeline.Workspace)/infra/infra/terraform'
+
+  - deployment: ${{ variables.environmentFriendlyString }}_FrontEnd_WebApp
+    dependsOn: ${{ variables.environmentFriendlyString }}_Infra
+    displayName: 'Deploying Frontend App Service'
+    continueOnError: false
+    environment: drop-${{ parameters.environment }}
+    strategy:
+      runOnce:
+          deploy:
+           steps:
+              - download: api 
+              - task: AzureWebApp@1
+                inputs:
+                  azureSubscription: ${{ variables.Service_Connection }} 
+                  appType: 'webApp'
+                  appName: ${{ variables.Web_Frontend_Name }}
+                  package: '$(Pipeline.Workspace)\api\frontend\*.zip'
+                  deploymentMethod: 'auto'
+
+  - deployment: ${{ variables.environmentFriendlyString }}_BackEnd_WebApp
+    displayName: 'Deploying Backend App Service'
+    dependsOn: ${{ variables.environmentFriendlyString }}_Infra
+    continueOnError: false
+    environment: drop-${{ parameters.environment }}
+    strategy:
+      runOnce:
+          deploy:
+           steps:
+              - download: api 
+              - task: AzureWebApp@1
+                inputs:
+                  azureSubscription: ${{ variables.Service_Connection }}
+                  appType: 'webApp'
+                  appName: ${{ variables.Web_Backend_Name }}
+                  package: '$(Pipeline.Workspace)\api\backend\*.zip'
+                  deploymentMethod: 'auto'
+
+  - deployment: ${{ variables.environmentFriendlyString }}_IntTests
+    displayName: "Running Integration Tests"
+    dependsOn: 
+      - ${{ variables.environmentFriendlyString }}_FrontEnd_WebApp
+      - ${{ variables.environmentFriendlyString }}_BackEnd_WebApp
+    continueOnError: false
+    environment: drop-${{ parameters.environment }}
+    strategy:
+      runOnce:
+          deploy:
+            steps:
+            - download: infra 
+            - task: AzureKeyVault@2
+              inputs:
+                azureSubscription: ${{ variables.Service_Connection }} 
+                KeyVaultName: ${{ variables.Key_Vault_Name}}
+                SecretsFilter: '*'
+                RunAsPreJob: false
+
+            - task: PowerShell@2
+              continueOnError: true
+              displayName: 'Run pester tests'
+              inputs:
+                pwsh: true
+                targetType: filePath
+
+                failOnStderr: false
+                filePath: '$(Pipeline.Workspace)/infra/infra/powershell/tests/Invoke-PostDeploymentPester.ps1'
+                arguments: '-FrontEndApi "${{ variables.BeUrl }}" -BackEndApi "${{ variables.BeUrl }}" -tokenauth "$(tokenauth)"'
+
+            - task: PublishTestResults@2
+              displayName: Publish Test Results
+              inputs:
+                testRunTitle: 'Post-Deployment Tests'
+                testRunner: 'NUnit'
+                testResultsFiles: './POSTDEPLOY-TEST-RESULTS.xml'
+                failTaskOnFailedTests: true

@@ -1,0 +1,15 @@
+name: $(SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)
+
+trigger:
+- main
+- 21918-variables-in-yaml
+
+pool:
+  name: 'UK'
+
+steps:
+
+- checkout: self
+  fetchDepth: 1
+- publish: $(System.DefaultWorkingDirectory)
+  artifact: infra

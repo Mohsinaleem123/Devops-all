@@ -1,0 +1,54 @@
+variables:
+  Environment: 'prod'
+  AgentPool: 'pcz-agent'
+
+  ArtifactUrl: 'https://dev.azure.com/RRALM/Group-IT-Infrastructure-and-Operations/_artifacts/feed/dxc-deployment-pipelines-prd'
+  ArtifactFeedID: '7bb353af-23c1-4d2b-b479-c56f64aa482b/5550e6f8-6300-4167-a5c3-26aab3ebc1bc'
+  stagetriggerurl: 'https://dev.azure.com/RRALM/Group-IT-Infrastructure-and-Operations/_apis/pipelines/678/runs?api-version=6.1-preview.1'
+  releasetriggerurl: 'https://dev.azure.com/RRALM/Group-IT-Infrastructure-and-Operations/_apis/pipelines/677/runs?api-version=6.1-preview.1'
+  BeUrl: 'https://alm.rolls-royce.local'
+  BeUrl-webapp: 'https://rrdeployment-fe-prod.azurewebsites.net' # not sure this is used anywhere?
+  gateway: 'alm.rolls-royce.local' # where is this used? can we merge with the beurl variable?
+  status: '/deploy/api/packages/'
+
+  dbrepo: 'rr-deployment-pipelines-db-prod'
+
+  Service_Connection: 'rr-deployment-dxc-iac-prod'
+
+  Resource_Group_Name: 'itss-uks-pcz01-rr-deployment-prod-rg'
+  Resource_Group_Tags_Release: 'pipelines-prod-release'
+  Resource_Group_Tags_Staging: 'pipelines-prod-staging'
+  Resource_Region: 'southuk'
+  Resource_Region_Failover_Location: 'westuk'
+
+
+  Vnet_Name: 'itss-uks-pcz01-vnet'
+  Vnet_Resoure_Group_Name: 'itss-uks-pcz01-net-rg'
+
+  integration_Subnet_Name: 'rr-deployment-integration-prod-fe'
+
+  vm_Resource_Group_Name: 'itss-uks-pcz01-net-rg'
+  vm_vnet_Name: 'itss-uks-pcz01-vnet'
+  vm_Subnet_Name: 'itss-uks-pcz01-fdm-02'
+
+  Web_Backend_Subnet_Name: 'rr-deployment-prod-be'
+  Web_Frontend_Subnet_Name: 'rr-deployment-prod-fe'
+
+  Application_Config_Name: 'rr-deploy-appg-iac-prod'
+
+  service_plan_name: 'rrdeploy-sp-prod'
+  Web_Frontend_Name: 'rrdeployment-fe-prod'
+  Web_Backend_Name: 'rrdeployment-be-prod'
+  
+  Key_Vault_Name: 'rrdeployFe-kv-prod'
+
+
+  Terraform_State_Storage_Account_Name: 'dropsatfstateprod'
+  Staging_Storage_ContainerName: 'staging-temp-prod'
+  Staging_Storage_Account_Name: 'rrdeploymentsaprod'
+  CosmosDB_Account_Name: 'rr-deploy-cdbiac-prod'
+  CosmosDB_Database_Name: 'RRDeployFE'
+  CosmosDB_Collection_MasterPackages_Name: 'MasterPackage'
+  CosmosDB_Collection_MasterPipelines_Name: 'MasterPipelines'
+  CosmosDB_Collection_ReporterPackages_Name: 'Report'
+  CosmosDB_Collection_Errorcodes_Name: 'Errorcodes'

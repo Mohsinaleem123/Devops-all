@@ -1,0 +1,54 @@
+variables:
+  Environment: 'preprod'
+  AgentPool: 'pcz-agent'
+
+  ArtifactUrl: 'https://dev.azure.com/RRALM/Group-IT-Infrastructure-and-Operations/_artifacts/feed/dxc-deployment-pipelines-pp'
+  ArtifactFeedID: "7bb353af-23c1-4d2b-b479-c56f64aa482b/c7e0fb08-7e33-494e-b3ff-68e5f8172bae"
+  stagetriggerurl: 'https://dev.azure.com/RRALM/Group-IT-Infrastructure-and-Operations/_apis/pipelines/415/runs?api-version=6.1-preview.1'
+  releasetriggerurl: 'https://dev.azure.com/RRALM/Group-IT-Infrastructure-and-Operations/_apis/pipelines/416/runs?api-version=6.1-preview.1'
+  BeUrl: 'https://alm-preprod.rolls-royce.local'
+  BeUrl-webapp: 'https://rr-deployment-be-as.azurewebsites.net' # not sure this is used anywhere?
+  gateway: 'alm-preprod.rolls-royce.local' # where is this used? can we merge with the beurl variable?
+  status: '/deploy/api/packages/'
+
+  dbrepo: 'rr-deployment-pipelines-db-preprod'
+
+  Service_Connection: 'rr-deployment-dxc-iac-preprod'
+
+  Resource_Group_Name: 'itss-uks-pcz01-rr-deployment-preprod-rg'
+  Resource_Group_Tags_Release: 'pipelines-preprod-release'
+  Resource_Group_Tags_Staging: 'pipelines-preprod-staging'
+  Resource_Region: 'southuk'
+  Resource_Region_Failover_Location: 'westuk'
+
+
+  Vnet_Name: 'itss-uks-pcz01-vnet'
+  Vnet_Resoure_Group_Name: 'itss-uks-pcz01-net-rg'
+
+  integration_Subnet_Name: 'rr-deployment-integration-preprod-fe'
+
+  vm_Resource_Group_Name: 'itss-uks-pcz01-net-rg'
+  vm_vnet_Name: 'itss-uks-pcz01-vnet'
+  vm_Subnet_Name: 'itss-uks-pcz01-fdm-02'
+
+  Web_Backend_Subnet_Name: 'rr-deployment-preprod-be'
+  Web_Frontend_Subnet_Name: 'rr-deployment-preprod-fe'
+
+  Application_Config_Name: 'rrdeploy-preprod-ac'
+
+  service_plan_name: 'rrdeploy-sp-preprod'
+  Web_Frontend_Name: 'rrdeployment-fe-preprod'
+  Web_Backend_Name: 'rrdeployment-be-preprod'
+  
+  Key_Vault_Name: 'rrdeployFe-pre-prod'
+
+
+  Terraform_State_Storage_Account_Name: 'dropsatfstatepreprod'
+  Staging_Storage_ContainerName: 'staging-temp-pre-prod'
+  Staging_Storage_Account_Name: 'rrdeploymentpreprod'
+  CosmosDB_Account_Name: 'rr-deploy-cdbiac-preprod'
+  CosmosDB_Database_Name: 'RRDeployFE'
+  CosmosDB_Collection_MasterPackages_Name: 'MasterPackage'
+  CosmosDB_Collection_MasterPipelines_Name: 'MasterPipelines'
+  CosmosDB_Collection_ReporterPackages_Name: 'Report'
+  CosmosDB_Collection_Errorcodes_Name: 'Errorcodes'
