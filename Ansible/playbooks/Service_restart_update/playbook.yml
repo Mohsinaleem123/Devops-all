@@ -1,0 +1,30 @@
+---
+- hosts: "{{ host }}"
+  ignore_unreachable: true
+  become: yes
+  vars:
+    host: "all"
+
+  tasks:
+    - name: Get apache2 Status
+      ansible.builtin.systemd:
+        name: "apache2"
+      register: apache2_status
+
+    - name: Print return information from apache2 status
+      debug: var=apache2_status.status.ActiveState
+
+    - name: restart-apache2 server
+      service:
+        name: apache2
+        state: restarted
+        # state: stopped
+        #value of state must be one of: (reloaded, restarted, started, stopped)
+        
+    - name: Get apache2 Status1
+      ansible.builtin.systemd:
+        name: "apache2"
+      register: apache2_status1
+
+    - name: Print return information from apache2 status1
+      debug: var=apache2_status1.status.ActiveState

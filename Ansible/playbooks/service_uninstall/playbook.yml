@@ -1,0 +1,34 @@
+---
+- hosts: "{{ host }}"
+  ignore_unreachable: true
+  become: yes
+  vars:
+    host: "all"
+
+  tasks:
+    - name: Installing Tree utility
+      apt:
+         name: tree
+         state: present
+         
+    - name: checking tree version
+      ansible.builtin.shell: tree --version
+      register: output
+      
+    - name: Print return information from tree version
+      debug: var=output.stdout_lines
+
+    - name: Uninstalling Tree utility
+      apt:
+         name: tree
+         state: absent
+
+    - name: Check if tree is installed
+      command: which tree
+      register: tree_installed
+      ignore_errors: true
+
+    - name: Print custom message when tree is not found
+      debug:
+        msg: "The Tree utility is not found in the system."
+      when: tree_installed.rc != 0

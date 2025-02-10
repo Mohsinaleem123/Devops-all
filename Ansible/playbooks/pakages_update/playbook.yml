@@ -1,0 +1,28 @@
+---
+- hosts: "{{ host }}"
+  ignore_unreachable: true
+  become: yes
+  vars:
+    host: "all"
+
+  tasks:
+    - name: update packages
+      shell: apt update -y
+      
+    - name: install tree
+      apt:
+         name: tree
+  
+    - name: checking tree version
+      ansible.builtin.shell: tree --version
+      register: output
+      
+    - name: Print return information from tree version
+      debug: var=output.stdout_lines
+
+    - name: Printing a Message
+      shell: echo "Hello World"
+      register: out
+
+    - name: Print return information from Printing Message
+      debug: var=out.stdout_lines

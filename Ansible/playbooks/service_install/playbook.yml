@@ -1,0 +1,20 @@
+---
+- hosts: "{{ host }}"
+  ignore_unreachable: true
+  become: yes
+  vars:
+    host: "all"
+
+  tasks:
+    - name: update packages
+      shell: apt update -y
+    
+    - name: install apache2 server
+      apt: name=apache2=2.4.41-4ubuntu3.14 update_cache=yes state=present
+  
+    - name: checking apache2 version
+      shell: apache2 -v
+      register: output
+      
+    - name: Print return information from apache2 version
+      debug: var=output.stdout_lines

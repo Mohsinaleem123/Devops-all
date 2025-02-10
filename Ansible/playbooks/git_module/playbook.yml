@@ -1,0 +1,39 @@
+---
+- hosts: "{{ host }}"
+  ignore_unreachable: true
+  become: yes
+  vars:
+    host: "all"
+
+  tasks:
+    - name: Recursively remove directory /home/testing/dir3
+      ansible.builtin.file:
+        path: /home/testing/dir3
+        state: absent
+
+    # The below code is to clone repo, it will clone all the files in the branch you've specify.
+    - name: Git checkout
+      ansible.builtin.git:
+        repo: 'https://github.com/WAQAR-abc/2048-Game.git'
+        dest: /home/testing/dir3/
+        version: master
+
+    # - name: Create git archive from (public)repo '2048-Game' in /home/testing/dir3/2048-Game.zip
+    #   ansible.builtin.git:
+    #     repo: 'https://github.com/WAQAR-abc/2048-Game.git'
+    #     dest: /home/testing/dir3/cloned_repo/
+    #     #version can be the name of branch, in our case it is master branch
+    #     version: master
+    #     archive: /home/testing/dir3/2048-Game.zip
+    
+    # - name: Remove the cloned folder
+    #   file:
+    #     path: /home/testing/dir3/cloned_repo
+    #     state: absent
+
+    - name: Listing directory /home/testing/dir3/ after cloning git archive
+      shell: ls -ltr /home/testing/dir3/
+      register: output1
+    
+    - name: Print return information from Listing directory /home/testing/dir3/ after cloning git archive
+      debug: var=output1.stdout_lines

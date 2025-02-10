@@ -1,0 +1,23 @@
+---
+- hosts: "{{ host }}"
+  ignore_unreachable: true
+  become: yes
+  vars:
+    host: "all"
+
+  tasks:
+    # - name: Replacing content of file index.html
+    #   ansible.builtin.copy:
+    #     content: '<html><style>h1{text-align: center;}</style> <body style="background-color:powderblue;"> <h1>This is a SAMPLE Page.</h1> <p>Created BY: WAQAR</p> </body> </html>'
+    #     dest: /var/www/html/index.html
+    - name: Replacing file index.html
+      copy:
+        src: Apache2/index.html
+        dest: /var/www/html/index.html
+        
+    - name: Listing Index.html
+      shell: cat /var/www/html/index.html
+      register: output
+    
+    - name: Print return information from Index.html
+      debug: var=output.stdout_lines

@@ -1,0 +1,25 @@
+---
+- hosts: "{{ host }}"
+  ignore_unreachable: true
+  become: yes
+  vars:
+    host: "all"
+
+  tasks:
+    - name: Copy directory from local-host to remote-host
+      copy:
+        src: Files/
+        dest: /home/testing/
+
+    # - name: Copy directory from remote-host to remote-host
+    #   copy:
+    #     src: /home/File.txt
+    #     dest: /home/testing/
+    #     remote_src: yes
+
+    - name: Listing directory /home/testing
+      shell: ls -ltr /home/testing
+      register: output
+    
+    - name: Print return information from Listing directory /home/testing
+      debug: var=output.stdout_lines

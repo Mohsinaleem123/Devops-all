@@ -1,0 +1,65 @@
+---
+- hosts: "{{ host }}"
+  ignore_unreachable: true
+  become: yes
+  vars:
+    host: "all"
+
+  tasks:
+    - name: Create the user 'user3' with a specific uid
+      ansible.builtin.user:
+        name: user3
+        comment: Testing User3
+        uid: 1030
+
+    - name: Create the user 'user4' with a specific uid
+      ansible.builtin.user:
+        name: user4
+        comment: Testing User4
+        uid: 1040    
+
+    - name: Listing created users
+      shell: cat /etc/passwd | grep user
+      register: output
+    
+    - name: Print return information from Listing created users
+      debug: var=output.stdout_lines
+
+    - name: Listing groups with above users
+      shell: cat /etc/group | grep user
+      register: output1
+    
+    - name: Print return information from Listing groups with above users
+      debug: var=output1.stdout_lines
+
+    - name: Add existing users 'user3, user4' to group 'sudo,video,audio'
+      user:
+        name: "{{ item }}"
+        groups: sudo,video,audio
+        append: yes
+      with_items:
+        - user3
+        - user4
+
+    - name: Listing groups after adding above users
+      shell: cat /etc/group | grep user
+      register: output2
+    
+    - name: Print return information from Listing groups after adding above users
+      debug: var=output2.stdout_lines
+
+    - name: Deleting users 'user3, user4' with their associated directories 
+      ansible.builtin.user:
+        name: "{{ item }}"
+        state: absent
+        remove: yes
+      with_items:
+        - user3
+        - user4
+        
+    - name: Listing users after deletion
+      shell: cat /etc/passwd | grep user
+      register: output3
+    
+    - name: Print return information from Listing users after deletion
+      debug: var=output3.stdout_lines

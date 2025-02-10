@@ -1,0 +1,51 @@
+---
+- hosts: "{{ host }}"
+  ignore_unreachable: true
+  become: yes
+  vars:
+    host: "all"
+
+  tasks:  
+    - name: Create user 'user1' with a specific uid and a primary group of 'sudo'
+      ansible.builtin.user:
+        name: user1
+        comment: Testing User1
+        uid: 1010
+        group: sudo
+
+    - name: Create user 'user2' with a specific uid, password, shell, and groups
+      user:
+        name: user2
+        comment: Testing User2
+        uid: 1020
+        password: "{{ 'secret' | password_hash('sha512', 'mysecret') }}"
+        shell: /bin/bash
+        groups: sudo,video
+        append: yes
+
+    - name: Listing created users
+      shell: cat /etc/passwd | grep user
+      register: output
+    
+    - name: Print return information from Listing created users
+      debug: var=output.stdout_lines
+
+    - name: Listing groups with above users
+      shell: cat /etc/group | grep user
+      register: output1
+    
+    - name: Print return information from Listing groups with above users
+      debug: var=output1.stdout_lines   
+    
+    - name: Deleting user 'user1' with its associated directories 
+      ansible.builtin.user:
+        name: user1
+        state: absent
+        remove: yes
+        
+    - name: Listing users after deletion
+      shell: cat /etc/passwd | grep user
+      register: output2
+    
+    - name: Print return information from Listing users after deletion
+      debug: var=output2.stdout_lines

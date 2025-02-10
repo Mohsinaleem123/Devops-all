@@ -1,0 +1,59 @@
+---
+- hosts: "{{ host }}"
+  ignore_unreachable: true
+  become: yes
+  vars:
+    host: "all"
+
+  tasks:
+    - name: Recursively remove directory /home/testing/dir2
+      ansible.builtin.file:
+        path: /home/testing/dir2
+        state: absent
+
+    - name: Create a directory (dir2) if it does not exist
+      ansible.builtin.file:
+        path: /home/testing/dir2
+        state: directory
+        mode: '0755'
+        owner: testadmin
+        group: testadmin
+
+    - name: Creating a new file (Test.txt) with content
+      copy:
+        dest: /home/testing/dir2/Test.txt
+        content: |
+          Hello.
+          This is a testing Text.
+          From Ansible-Playbook.
+
+    - name: Listing file 'Test.txt' in /home/testing/dir2/
+      shell: cat /home/testing/dir2/Test.txt
+      register: output
+    
+    - name: Print return information from Listing file 'Test.txt' in /home/testing/dir2/
+      debug: var=output.stdout_lines
+
+    - name: Find and replace a line in a file
+      lineinfile:
+        path: /home/testing/dir2/Test.txt
+        regexp: "testing"
+        line: "This is newly added Line"
+
+    # - name: Check if /home/testing/dir2/Test.txt contains "testing"
+    #   lineinfile:
+    #     path: /home/testing/dir2/Test.txt
+    #     line: "testing"
+    #     state: present
+    #   check_mode: true
+    #   register: result
+    
+    # - name: "sample task in case the String present in the file"
+    #   debug: var=result.stdout_lines
+      
+    - name: Listing file 'Test.txt' in /home/testing/dir2/
+      shell: cat /home/testing/dir2/Test.txt
+      register: output1
+    
+    - name: Print return information from Listing file 'Test.txt' in /home/testing/dir2/
+      debug: var=output1.stdout_lines

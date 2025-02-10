@@ -1,0 +1,88 @@
+---
+- hosts: "{{ host }}"
+  ignore_unreachable: true
+  become: yes
+  vars:
+    host: "all"
+
+  tasks:
+    - name: Recursively remove directory /home/testing/dir1
+      ansible.builtin.file:
+        path: /home/testing/dir1
+        state: absent
+
+    - name: Create a directory (dir1) if it does not exist
+      ansible.builtin.file:
+        path: /home/testing/dir1
+        state: directory
+        mode: '0755'
+        owner: testadmin
+        group: testadmin
+
+    - name: Create a new empty file (file_empty) with permissions
+      file:
+        path: /home/testing/dir1/File_empty
+        state: touch
+        mode: 0644
+        owner: testadmin
+        group: testadmin
+
+    - name: Creating a new file (File_with_content) with content
+      copy:
+        dest: /home/testing/dir1/File_with_content
+        content: |
+          Hello.
+          This is a testing Text.
+          From Ansible-Playbook.
+
+    - name: Listing directory /home/testing/
+      shell: ls -ltr /home/testing/
+      register: output
+    
+    - name: Print return information from Listing directory /home/testing
+      debug: var=output.stdout_lines
+
+    - name: Listing directory /home/testing/dir1/
+      shell: ls -ltr /home/testing/dir1/
+      register: output1
+    
+    - name: Print return information from Listing directory /home/testing/dir1/
+      debug: var=output1.stdout_lines
+
+    # - name: Recursively change ownership of a directory (dir1) and its all files/directories
+    #   ansible.builtin.file:
+    #     path: /home/testing/dir1
+    #     state: directory
+    #     recurse: yes
+    #     owner: root
+    #     group: root
+    
+    - name: Change file ownership, group and permissions of (File_empty)
+      ansible.builtin.file:
+        path: /home/testing/dir1/File_empty
+        owner: root
+        group: root
+        mode: '0666'
+       #mode can also be used like below:
+       #mode: u=rw,g=r,o=r
+       #mode: u+rw,g-wx,o-rwx
+    - name: Change file ownership, group and permissions of (File_with_content)
+      ansible.builtin.file:
+        path: /home/testing/dir1/File_with_content
+        owner: testadmin
+        group: testadmin
+        mode: u=rw,g=rw,o=r
+
+    - name: Listing directory /home/testing/
+      shell: ls -ltr /home/testing/
+      register: output2
+    
+    - name: Print return information from Listing directory /home/testing
+      debug: var=output2.stdout_lines
+
+    - name: Listing directory /home/testing/dir1/
+      shell: ls -ltr /home/testing/dir1/
+      register: output3
+    
+    - name: Print return information from Listing directory /home/testing/dir1/
+      debug: var=output3.stdout_lines
