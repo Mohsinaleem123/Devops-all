@@ -1,7 +1,6 @@
-Deploying AKS with Application Gateway Ingress Controller (AGIC) and ArgoCD with SSL
 
+# Deploying AKS with Application Gateway Ingress Controller (AGIC) and ArgoCD with SSL
 
-```markdown
 
 This guide walks through setting up an Azure Kubernetes Service (AKS) cluster, enabling the Application Gateway Ingress Controller (AGIC), deploying ArgoCD, and exposing it securely with HTTPS using Azure Application Gateway's native SSL capabilities.
 
