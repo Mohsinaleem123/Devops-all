@@ -1,10 +1,4 @@
-📄 Full guide (Markdown file) attached below – save it for your next project!  
 
-#AKS #ArgoCD #Azure #DevOps #Kubernetes #AGIC #SSL
-
----
-
-**Full Guide – Markdown File**  
 
 ```markdown
 # Deploying AKS with Application Gateway Ingress Controller (AGIC) and ArgoCD with SSL
