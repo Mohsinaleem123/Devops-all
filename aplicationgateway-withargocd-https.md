@@ -262,7 +262,7 @@ If you don't have a domain or want to test with a self‑signed certificate, you
 #### Generate a Self‑signed Certificate
 
 ```bash
-DOMAIN="test.autofloat.co"
+DOMAIN="argocd.yourcompany.com"
 
 openssl req -x509 -nodes -days 365 \
   -newkey rsa:2048 \
