@@ -411,3 +411,12 @@ az group delete --name $RESOURCE_GROUP --yes --no-wait
 - [ArgoCD Helm Chart](https://artifacthub.io/packages/helm/argo/argo-cd)
 - [AGIC with Key Vault](https://learn.microsoft.com/en-us/azure/application-gateway/ingress-controller-key-vault)
 ```
+## 💬 Discussion & Questions
+
+Found this helpful? Have questions? Join the discussion:
+🔗 [GitHub Discussion](https://github.com/Mohsinaleem123/Devops-all/discussions/1)
+
+---
+
+*Created by [Mohsin Aleem](https://github.com/Mohsinaleem123)* | *Last Updated: February 2025*
+
